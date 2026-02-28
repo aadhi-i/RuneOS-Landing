@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoatLinux — Built for Developers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #040d1f;
+    --navy-mid: #071535;
+    --navy-light: #0d2150;
+    --navy-glass: rgba(7, 21, 53, 0.55);
+    --red: #e8172c;
+    --red-glow: rgba(232, 23, 44, 0.35);
+    --red-dim: #9b1020;
+    --white: #f0f4ff;
+    --muted: rgba(180, 200, 255, 0.55);
+    --border: rgba(100, 150, 255, 0.15);
+    --glass-border: rgba(255,255,255,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(13,33,80,0.9) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(232,23,44,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, #040d1f 0%, #020810 100%);
+  }
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(100,150,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,150,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPulse 8s ease-in-out infinite;
+  }
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(80px); z-index: 0; pointer-events: none;
+    animation: orbDrift 20s ease-in-out infinite;
+  }
+  .orb-1 { width: 400px; height: 400px; background: rgba(13,33,80,0.6); top: -100px; left: -100px; animation-delay: 0s; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(232,23,44,0.12); bottom: 10%; right: 5%; animation-delay: -7s; }
+  .orb-3 { width: 250px; height: 250px; background: rgba(20,50,120,0.5); top: 40%; left: 30%; animation-delay: -14s; }
+  @keyframes orbDrift {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(30px, -20px); }
+    66% { transform: translate(-20px, 30px); }
+  }
+
+  /* ── GLASS CARD ── */
+  .glass {
+    background: var(--navy-glass);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 70px;
+    background: rgba(4,13,31,0.7);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--white);
+  }
+  .nav-logo span { color: var(--red); }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--red);
+    clip-path: polygon(50% 0%, 100% 30%, 85% 100%, 15% 100%, 0% 30%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--red) !important;
+    color: white !important;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.2s, box-shadow 0.2s !important;
+  }
+  .nav-cta:hover { background: #ff2a3d !important; box-shadow: 0 0 20px var(--red-glow) !important; }
+
+  /* ── SECTIONS ── */
+  section { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  #home {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 100px 5% 60px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    background: rgba(232,23,44,0.1);
+    border: 1px solid rgba(232,23,44,0.3);
+    border-radius: 100px;
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #ff6070; margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: blink 2s ease infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(3rem, 9vw, 7rem);
+    line-height: 0.95; letter-spacing: -0.04em;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero-title .accent { color: var(--red); }
+  .hero-title .dim { color: rgba(180,200,255,0.35); }
+
+  .hero-sub {
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    color: var(--muted); max-width: 600px;
+    margin: 1.5rem auto; line-height: 1.8;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    flex-wrap: wrap; margin-top: 2.5rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 32px;
+    background: var(--red);
+    color: white; border: none; border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 4px 30px var(--red-glow);
+  }
+  .btn-primary:hover { background: #ff2a3d; transform: translateY(-2px); box-shadow: 0 8px 40px rgba(232,23,44,0.5); }
+  .btn-primary svg { transition: transform 0.2s; }
+  .btn-primary:hover svg { transform: translateY(2px); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    background: transparent;
+    color: var(--white); border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.25s;
+  }
+  .btn-secondary:hover { border-color: rgba(100,150,255,0.4); background: rgba(100,150,255,0.05); }
+
+  .hero-terminal {
+    margin: 4rem auto 0;
+    max-width: 620px; width: 100%;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .terminal-bar {
+    background: rgba(13,21,53,0.9);
+    border-radius: 12px 12px 0 0;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--glass-border);
+    border-bottom: none;
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-red { background: var(--red); } .t-y { background: #f5a623; } .t-g { background: #27c93f; }
+  .t-title { margin-left: auto; margin-right: auto; color: var(--muted); font-size: 0.7rem; }
+  .terminal-body {
+    background: rgba(4,10,25,0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 20px 24px;
+    text-align: left;
+    font-size: 0.8rem; line-height: 2;
+    color: rgba(180,200,255,0.8);
+  }
+  .t-prompt { color: var(--red); }
+  .t-cmd { color: #64d8ff; }
+  .t-out { color: #6aff8e; }
+  .t-dim { color: rgba(180,200,255,0.35); }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: var(--red); animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+
+  /* ── FEATURES ── */
+  #features {
+    padding: 100px 5%;
+  }
+  .section-label {
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--red); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 5vw, 3.5rem);
+    letter-spacing: -0.03em; line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--muted); max-width: 540px; line-height: 1.8; font-size: 0.88rem; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 4rem;
+  }
+  .feature-card {
+    padding: 2rem;
+    transition: transform 0.3s, border-color 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: 16px;
+    background: radial-gradient(circle at 30% 30%, rgba(232,23,44,0.06), transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feature-card:hover { transform: translateY(-5px); border-color: rgba(232,23,44,0.25); }
+  .feature-card:hover::before { opacity: 1; }
+  .feat-icon {
+    width: 48px; height: 48px; border-radius: 10px;
+    background: rgba(232,23,44,0.12);
+    border: 1px solid rgba(232,23,44,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 1.2rem;
+  }
+  .feat-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.1rem; margin-bottom: 0.6rem;
+  }
+  .feat-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.8; }
+
+  /* ── RELEASE NOTES ── */
+  #releases { padding: 100px 5%; }
+  .releases-container { max-width: 800px; }
+  .release-card {
+    padding: 2rem;
+    margin-top: 1.5rem;
+    position: relative;
+  }
+  .release-header {
+    display: flex; align-items: center; gap: 1rem;
+    flex-wrap: wrap; margin-bottom: 1.2rem;
+  }
+  .release-version {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.3rem;
+  }
+  .release-tag {
+    padding: 3px 12px;
+    border-radius: 100px;
+    font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .tag-latest { background: rgba(232,23,44,0.15); border: 1px solid rgba(232,23,44,0.3); color: #ff6070; }
+  .tag-stable { background: rgba(100,200,100,0.1); border: 1px solid rgba(100,200,100,0.25); color: #6aff8e; }
+  .release-date { color: var(--muted); font-size: 0.78rem; margin-left: auto; }
+  .release-changes { list-style: none; }
+  .release-changes li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(100,150,255,0.07);
+    font-size: 0.82rem; color: var(--muted);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .release-changes li::before { content: '›'; color: var(--red); flex-shrink: 0; font-weight: 700; }
+  .release-changes li:last-child { border-bottom: none; }
+
+  /* ── DOWNLOAD ── */
+  #download { padding: 100px 5%; text-align: center; }
+  .download-box {
+    max-width: 700px; margin: 0 auto;
+    padding: 4rem 3rem;
+    position: relative; overflow: hidden;
+  }
+  .download-box::before {
+    content: '';
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+  }
+  .download-glow {
+    position: absolute; top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 200px; height: 200px;
+    background: rgba(232,23,44,0.12);
+    border-radius: 50%; filter: blur(60px); pointer-events: none;
+  }
+  .dl-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(1.8rem, 4vw, 3rem);
+    letter-spacing: -0.03em; margin-bottom: 1rem;
+  }
+  .dl-meta { color: var(--muted); font-size: 0.82rem; margin-bottom: 2.5rem; line-height: 1.8; }
+  .dl-specs {
+    display: flex; justify-content: center; gap: 2rem;
+    flex-wrap: wrap; margin-bottom: 2.5rem;
+  }
+  .dl-spec { font-size: 0.78rem; color: var(--muted); }
+  .dl-spec strong { color: var(--white); display: block; font-size: 0.88rem; margin-bottom: 2px; }
+  .dl-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 40px;
+    background: var(--red);
+    color: white; border: none; border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 4px 40px rgba(232,23,44,0.4);
+  }
+  .btn-download:hover { background: #ff2a3d; transform: translateY(-3px); box-shadow: 0 8px 50px rgba(232,23,44,0.6); }
+
+  /* ── SUPPORT ── */
+  #support { padding: 100px 5%; }
+  .support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .support-card {
+    padding: 2rem;
+    transition: transform 0.3s, border-color 0.3s;
+    text-decoration: none; color: inherit;
+    display: block;
+  }
+  .support-card:hover { transform: translateY(-4px); border-color: rgba(232,23,44,0.25); }
+  .sup-icon {
+    font-size: 2rem; margin-bottom: 1rem;
+    display: block;
+  }
+  .sup-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;
+  }
+  .sup-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.8; }
+  .sup-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--red); font-size: 0.78rem; margin-top: 1rem;
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+  .support-card:hover .sup-link { gap: 10px; }
+
+  .faq { max-width: 760px; margin-top: 3rem; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .faq-q {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 0;
+    cursor: pointer;
+    font-size: 0.88rem; font-weight: 500;
+    transition: color 0.2s;
+  }
+  .faq-q:hover { color: var(--red); }
+  .faq-icon { color: var(--red); font-size: 1.2rem; transition: transform 0.3s; flex-shrink: 0; }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    font-size: 0.82rem; color: var(--muted); line-height: 1.8;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-bottom: 1.2rem; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1;
+    padding: 3rem 5%;
+    border-top: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
+    font-size: 0.75rem; color: var(--muted);
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.1rem; color: var(--white);
+  }
+  .footer-logo span { color: var(--red); }
+  .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--white); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .hero-actions { flex-direction: column; }
+    .dl-specs { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="bg-layer"></div>
+<div class="grid-overlay"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="#home" class="nav-logo">
+    <div class="logo-icon">🐐</div>
+    Goat<span>Linux</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#releases">Releases</a></li>
+    <li><a href="#support">Support</a></li>
+    <li><a href="#download" class="nav-cta">Download</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="home">
+  <div>
+    <div class="hero-badge"><span class="badge-dot"></span> v1.3.0 Ironhorn — Now Available</div>
+    <h1 class="hero-title">
+      The OS<br>
+      <span class="accent">Built</span> for<br>
+      Developers<span class="dim">.</span>
+    </h1>
+    <p class="hero-sub">
+      GoatLinux is a lean, fast, and opinionated Linux distribution engineered from the ground up for serious developers. No bloat. No compromises.
+    </p>
+    <div class="hero-actions">
+      <a href="#download" class="btn-primary">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download ISO
+      </a>
+      <a href="#features" class="btn-secondary">
+        Explore Features →
+      </a>
+    </div>
+
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <div class="t-dot t-red"></div>
+        <div class="t-dot t-y"></div>
+        <div class="t-dot t-g"></div>
+        <span class="t-title">goat@terminal — zsh</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">$ </span><span class="t-cmd">neofetch</span></div>
+        <div class="t-out">  ██████╗  ██████╗   ████████╗</div>
+        <div class="t-out">  ██╔══██╗██╔═══██╗ ╚══██╔══╝</div>
+        <div class="t-out">  ██║  ██║██║   ██║    ██║   </div>
+        <div class="t-out">  ██████╔╝╚██████╔╝    ██║   </div>
+        <div class="t-dim">  OS: GoatLinux 1.3.0 Ironhorn x86_64</div>
+        <div class="t-dim">  Kernel: 6.10.2-goat-hardened</div>
+        <div class="t-dim">  Shell: zsh 5.9  |  WM: i3-gaps</div>
+        <div class="t-dim">  Packages: 312 (pacman)  |  Uptime: 7d 4h</div>
+        <div><span class="t-prompt">$ </span><span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="section-label">// what makes it different</div>
+  <h2 class="section-title">Engineered for<br>peak dev workflow</h2>
+  <p class="section-sub">Every decision in GoatLinux is made with one question: does this make developers faster?</p>
+
+  <div class="features-grid reveal">
+    <div class="feature-card glass">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">Blazing Boot</div>
+      <p class="feat-desc">Cold boot to login in under 4 seconds. Optimized initramfs and a stripped kernel remove every millisecond of waste.</p>
+    </div>
+    <div class="feature-card glass">
+      <div class="feat-icon">🛡</div>
+      <div class="feat-title">Hardened Kernel</div>
+      <p class="feat-desc">Patched with grsecurity-inspired hardening. Secure by default — no manual config needed for production-class security.</p>
+    </div>
+    <div class="feature-card glass">
+      <div class="feat-icon">📦</div>
+      <div class="feat-title">Dev Toolchain</div>
+      <p class="feat-desc">Comes pre-loaded with GCC, LLVM, Rust, Go, Node.js, Docker, and your dotfiles manager of choice — ready on first boot.</p>
+    </div>
+    <div class="feature-card glass">
+      <div class="feat-icon">🖥</div>
+      <div class="feat-title">Tiling WM First</div>
+      <p class="feat-desc">i3-gaps is the default with sensible keybindings baked in. Switch to Sway for Wayland with a single command.</p>
+    </div>
+    <div class="feature-card glass">
+      <div class="feat-icon">🔧</div>
+      <div class="feat-title">Pacman + AUR</div>
+      <p class="feat-desc">Full access to the Arch ecosystem. Over 60,000 packages at your fingertips with yay pre-configured out of the box.</p>
+    </div>
+    <div class="feature-card glass">
+      <div class="feat-icon">🌐</div>
+      <div class="feat-title">Dev Containers</div>
+      <p class="feat-desc">Native Docker and Podman support. Dev environment templating with our goat-env CLI tool ships in the base install.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Release Notes -->
+<section id="releases">
+  <div class="section-label">// release notes</div>
+  <h2 class="section-title">Changelog</h2>
+  <p class="section-sub">GoatLinux follows a rolling release cycle with named stable milestones.</p>
+
+  <div class="releases-container">
+    <div class="release-card glass reveal">
+      <div class="release-header">
+        <span class="release-version">v1.3.0 — Ironhorn</span>
+        <span class="release-tag tag-latest">Latest</span>
+        <span class="release-date">Feb 14, 2026</span>
+      </div>
+      <ul class="release-changes">
+        <li>Upgraded to Linux kernel 6.10.2-goat-hardened with eBPF performance improvements</li>
+        <li>New goat-env CLI for one-command dev environment scaffolding (Node, Rust, Go, Python)</li>
+        <li>i3-gaps replaced with i3-rounded for smoother window compositing</li>
+        <li>Pipewire 1.2 replaces PulseAudio as default audio server</li>
+        <li>Revamped installer with TUI guided setup and disk encryption by default</li>
+        <li>Added ARM64 (Apple Silicon) experimental image</li>
+      </ul>
+    </div>
+
+    <div class="release-card glass reveal">
+      <div class="release-header">
+        <span class="release-version">v1.2.1 — Cliffhorn</span>
+        <span class="release-tag tag-stable">Stable</span>
+        <span class="release-date">Nov 2, 2025</span>
+      </div>
+      <ul class="release-changes">
+        <li>Security patch: fixed privilege escalation in goat-pkg helper script</li>
+        <li>Docker 27.1 and containerd 2.0 integration improvements</li>
+        <li>Resolved Nvidia driver conflict on 40-series GPUs</li>
+        <li>zsh prompt updated with git status and exit code indicators</li>
+      </ul>
+    </div>
+
+    <div class="release-card glass reveal">
+      <div class="release-header">
+        <span class="release-version">v1.2.0 — Cliffhorn</span>
+        <span class="release-tag tag-stable">Stable</span>
+        <span class="release-date">Sep 19, 2025</span>
+      </div>
+      <ul class="release-changes">
+        <li>Wayland/Sway support as a first-class alternative desktop session</li>
+        <li>Integrated goat-dots dotfiles manager with sync-to-git feature</li>
+        <li>Performance: ZRAM enabled by default, 25% RAM efficiency gain on 8GB systems</li>
+        <li>New theme engine: switch color schemes system-wide with one command</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Download -->
+<section id="download">
+  <div class="download-box glass reveal">
+    <div class="download-glow"></div>
+    <div class="dl-title">Get GoatLinux</div>
+    <p class="dl-meta">Download the latest stable ISO and burn it to a USB drive.<br>Verify checksums before installation.</p>
+    <div class="dl-specs">
+      <div class="dl-spec"><strong>v1.3.0 Ironhorn</strong>Stable Release</div>
+      <div class="dl-spec"><strong>2.1 GB</strong>ISO Size</div>
+      <div class="dl-spec"><strong>x86_64</strong>Architecture</div>
+      <div class="dl-spec"><strong>SHA-256</strong>Verified</div>
+    </div>
+    <div class="dl-buttons">
+      <a href="goatlinux-1.3.0-x86_64.iso" download class="btn-download">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download ISO (2.1 GB)
+      </a>
+      <a href="#" class="btn-secondary" style="border-radius:10px;">
+        🔒 Verify Checksum
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Support -->
+<section id="support">
+  <div class="section-label">// support & community</div>
+  <h2 class="section-title">We've got your back</h2>
+  <p class="section-sub">GoatLinux is backed by an active community of developers. Find help, report bugs, or contribute.</p>
+
+  <div class="support-grid">
+    <a href="#" class="support-card glass">
+      <span class="sup-icon">📖</span>
+      <div class="sup-title">Documentation</div>
+      <p class="sup-desc">Comprehensive guides covering installation, configuration, the package manager, and developer workflows.</p>
+      <span class="sup-link">Read docs →</span>
+    </a>
+    <a href="#" class="support-card glass">
+      <span class="sup-icon">💬</span>
+      <div class="sup-title">Community Forum</div>
+      <p class="sup-desc">Ask questions, share configs, and get help from thousands of GoatLinux users and contributors.</p>
+      <span class="sup-link">Join forum →</span>
+    </a>
+    <a href="#" class="support-card glass">
+      <span class="sup-icon">🐙</span>
+      <div class="sup-title">GitHub</div>
+      <p class="sup-desc">Report bugs, request features, or submit PRs. GoatLinux is open source and welcomes contributions.</p>
+      <span class="sup-link">View on GitHub →</span>
+    </a>
+    <a href="#" class="support-card glass">
+      <span class="sup-icon">💬</span>
+      <div class="sup-title">Discord</div>
+      <p class="sup-desc">Real-time chat with the core team and community. #dev-help, #showcase, and #releases channels.</p>
+      <span class="sup-link">Join Discord →</span>
+    </a>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.3rem;margin-top:4rem;margin-bottom:0.5rem;">FAQ</h3>
+  <p style="color:var(--muted);font-size:0.82rem;margin-bottom:1rem;">Common questions from new users.</p>
+  <div class="faq">
+    <div class="faq-item">
+      <div class="faq-q">Is GoatLinux based on Arch Linux?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. GoatLinux uses the Arch Linux base with the pacman package manager and AUR support. We add a hardened kernel, curated dev tooling, and our own installer on top.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I install a different desktop environment?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Absolutely. While i3-gaps and Sway are the defaults, you can install GNOME, KDE, or any other DE/WM from the AUR. GoatLinux doesn't lock you into anything.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is it suitable for daily driving?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes — GoatLinux is designed as a full-time workstation OS for developers. Stability milestones are tested extensively before release and the rolling updates are opt-in.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I report a bug?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Open an issue on our GitHub repository with the goat-bugreport output attached. This tool collects relevant system info automatically and can be run via: <code style="color:#64d8ff">goat-bugreport --collect</code></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is there commercial support available?<span class="faq-icon">+</span></div>
+      <div class="faq-a">We offer commercial support contracts for teams and enterprises. Reach out via email at enterprise@goatlinux.io for pricing and SLAs.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">Goat<span>Linux</span></div>
+  <div style="color:var(--muted);font-size:0.75rem;">© 2026 GoatLinux Project. Open Source under GPL-2.0.</div>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#releases">Releases</a>
+    <a href="#download">Download</a>
+    <a href="#support">Support</a>
+    <a href="#">GitHub</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // Smooth active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--white)' : '';
+    });
+  });
+
+  // Animated terminal typing effect
+  const commands = ['neofetch', 'goat-env init rust', 'pacman -Syu', 'docker ps'];
+  let ci = 0;
+  function cycleTerminal() {
+    const cmdEl = document.querySelector('.t-cmd');
+    if (!cmdEl) return;
+    let text = commands[ci % commands.length];
+    cmdEl.textContent = '';
+    let i = 0;
+    const type = setInterval(() => {
+      cmdEl.textContent += text[i++];
+      if (i >= text.length) { clearInterval(type); ci++; setTimeout(cycleTerminal, 3000); }
+    }, 60);
+  }
+  setTimeout(cycleTerminal, 4000);
+</script>
+</body>
+</html>
